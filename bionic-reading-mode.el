@@ -39,14 +39,15 @@
 
 (defun bionic-reading--keywords ()
   "Compute font-lock keywords for word stems."
-  (let ((keywords '()))
-    (dotimes (n 16)
-      (push (list
-	     (format
-	      "\\<\\(\\w\\{%d\\}\\)\\w\\{%d,\\}"
-	      n (truncate (* n 0.6)))
-	     1 (quote 'bionic-reading-highlight-face))
-	    keywords))
+  (let ((keywords '(("\\<\\(\\w\\)\\w\\{,2\\}" 1 'bionic-reading-highlight-face))))
+    (dotimes (c 16)
+      (let ((n (+ 2 c)))
+	(push (list
+	       (format
+		"\\<\\(\\w\\{%d\\}\\)\\w\\{%d,\\}"
+		n (ceiling (* n 0.6)))
+	       1 (quote 'bionic-reading-highlight-face))
+	      keywords)))
     keywords))
 
 
