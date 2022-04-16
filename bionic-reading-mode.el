@@ -43,11 +43,14 @@ highlighted by other modes. When t, highlight all words irregardless.
 Requires a mode toggle to take effect."
   :type 'boolean)
 
+(defvar bionic-reading--overlay-state nil
+  "Overlay state since the last mode activation.")
+
 
 ;; Helper functions
 (defun bionic-reading--keywords ()
   "Compute font-lock keywords for word stems."
-  (let ((overlay (if bionic-reading-overlay 'append)))
+  (let ((overlay (if bionic-reading--overlay-state 'append)))
     (let ((keywords `(("\\<\\(\\w\\)\\w\\{,2\\}"
 		       (1 'bionic-reading-highlight-face ,overlay)))))
       (dotimes (c 16)
@@ -65,9 +68,12 @@ Requires a mode toggle to take effect."
 (define-minor-mode bionic-reading-mode
   "Highlight word stems for speed-reading."
   :lighter " BR"
-  (if bionic-reading-mode
-      (font-lock-add-keywords nil (bionic-reading--keywords) 'append)
-    (font-lock-remove-keywords nil (bionic-reading--keywords)))
+  (cond
+   (bionic-reading-mode
+    (setq bionic-reading--overlay-state bionic-reading-overlay)
+    (font-lock-add-keywords nil (bionic-reading--keywords) 'append))
+   (t
+    (font-lock-remove-keywords nil (bionic-reading--keywords))))
   (font-lock-flush))
 
 
