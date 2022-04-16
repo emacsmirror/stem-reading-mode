@@ -30,25 +30,35 @@
 
 ;;; Code:
 
-;; Customizable faces
+;; Customizable parameters
 (defface bionic-reading-highlight-face
   '((t :weight bold))
   "Face used for highlighting word stems."
   :group 'faces)
 
+(defcustom bionic-reading-overlay nil
+  "Control the aggressiveness of the stem highlight.
+When nil (default), only highlight words which are not already
+highlighted by other modes. When t, highlight all words irregardless.
+Requires a mode toggle to take effect."
+  :type 'boolean)
 
+
+;; Helper functions
 (defun bionic-reading--keywords ()
   "Compute font-lock keywords for word stems."
-  (let ((keywords '(("\\<\\(\\w\\)\\w\\{,2\\}" 1 'bionic-reading-highlight-face))))
-    (dotimes (c 16)
-      (let ((n (+ 2 c)))
-	(push (list
-	       (format
-		"\\<\\(\\w\\{%d\\}\\)\\w\\{%d,\\}"
-		n (ceiling (* n 0.6)))
-	       1 ''bionic-reading-highlight-face)
-	      keywords)))
-    keywords))
+  (let ((overlay (if bionic-reading-overlay 'append)))
+    (let ((keywords `(("\\<\\(\\w\\)\\w\\{,2\\}"
+		       (1 'bionic-reading-highlight-face ,overlay)))))
+      (dotimes (c 16)
+	(let ((n (+ 2 c)))
+	  (push (list
+		 (format
+		  "\\<\\(\\w\\{%d\\}\\)\\w\\{%d,\\}"
+		  n (ceiling (* n 0.6)))
+		 `(1 'bionic-reading-highlight-face ,overlay))
+		keywords)))
+      keywords)))
 
 
 ;;;###autoload
