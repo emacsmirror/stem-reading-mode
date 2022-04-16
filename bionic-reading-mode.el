@@ -56,7 +56,7 @@
   "Highlight word stems for speed-reading."
   :lighter " BR"
   (if bionic-reading-mode
-      (font-lock-add-keywords nil (bionic-reading--keywords))
+      (font-lock-add-keywords nil (bionic-reading--keywords) 'append)
     (font-lock-remove-keywords nil (bionic-reading--keywords)))
   (font-lock-flush))
 
