@@ -27,22 +27,43 @@
 ;; Use M-x bionic-reading-mode in a text buffer to turn on (or off) the
 ;; minor mode. Customize `bionic-reading-highlight-face' to modify the
 ;; default highlight. Set `bionic-reading-overlay' to add the highlight
-;; to existing previously-highlighted words.
+;; to all words unconditionally.
+;;
+;; With some modes, instead of highlighting the word stem, it might be
+;; convenient to de-light the remaining part of a word instead. You can
+;; achieve this effect by customizing `bionic-reading-delight-face'.
+;;
+;; On Hi-Dpi displays (and a good font), a configuration similar to the
+;; following can give excellent results:
+;;
+;; (require 'bionic-reading-mode)
+;; (set-face-attribute 'bionic-reading-highlight-face nil :weight 'unspecified)
+;; (set-face-attribute 'bionic-reading-delight-face nil :weight 'light)
 
 ;;; Code:
 
 ;; Customizable parameters
+(defgroup bionic-reading nil
+  "Bionic Reading: a speed reading minor mode."
+  :group 'text)
+
 (defface bionic-reading-highlight-face
   '((t :weight bold))
   "Face used for highlighting word stems."
-  :group 'faces)
+  :group 'bionic-reading)
+
+(defface bionic-reading-delight-face
+  '((t))
+  "Face used for delighting the regular (non-stemmed) part of a word."
+  :group 'bionic-reading)
 
 (defcustom bionic-reading-overlay nil
   "Control the aggressiveness of the stem highlight.
 When nil (default), only highlight words which are not already
 highlighted by other modes. When t, highlight all words irregardless.
 Requires a mode toggle to take effect."
-  :type 'boolean)
+  :type 'boolean
+  :group 'bionic-reading)
 
 (defvar bionic-reading--overlay-state nil
   "Overlay state since the last mode activation.")
@@ -52,15 +73,17 @@ Requires a mode toggle to take effect."
 (defun bionic-reading--keywords ()
   "Compute font-lock keywords for word stems."
   (let ((overlay (if bionic-reading--overlay-state 'append)))
-    (let ((keywords `(("\\<\\(\\w\\)\\w\\{,2\\}"
-		       (1 'bionic-reading-highlight-face ,overlay)))))
+    (let ((keywords `(("\\<\\(\\w\\)\\(\\w\\{,2\\}\\)"
+		       (1 'bionic-reading-highlight-face ,overlay)
+		       (2 'bionic-reading-delight-face ,overlay)))))
       (dotimes (c 16)
 	(let ((n (+ 2 c)))
 	  (push (list
 		 (format
-		  "\\<\\(\\w\\{%d\\}\\)\\w\\{%d,\\}"
+		  "\\<\\(\\w\\{%d\\}\\)\\(\\w\\{%d,\\}\\)"
 		  n (ceiling (* n 0.6)))
-		 `(1 'bionic-reading-highlight-face ,overlay))
+		 `(1 'bionic-reading-highlight-face ,overlay)
+		 `(2 'bionic-reading-delight-face ,overlay))
 		keywords)))
       keywords)))
 
