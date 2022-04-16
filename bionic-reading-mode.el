@@ -46,7 +46,7 @@
 	       (format
 		"\\<\\(\\w\\{%d\\}\\)\\w\\{%d,\\}"
 		n (ceiling (* n 0.6)))
-	       1 (quote 'bionic-reading-highlight-face))
+	       1 ''bionic-reading-highlight-face)
 	      keywords)))
     keywords))
 
