@@ -26,7 +26,8 @@
 ;;
 ;; Use M-x bionic-reading-mode in a text buffer to turn on (or off) the
 ;; minor mode. Customize `bionic-reading-highlight-face' to modify the
-;; default highlight.
+;; default highlight. Set `bionic-reading-overlay' to add the highlight
+;; to existing previously-highlighted words.
 
 ;;; Code:
 
