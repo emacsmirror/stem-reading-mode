@@ -1,8 +1,8 @@
-;;; bionic-reading-mode.el --- Speed reading minor mode  -*- lexical-binding: t -*-
+;;; stem-reading-mode.el --- Highlight word stems for speed-reading -*- lexical-binding: t -*-
 
 ;; Author: Yuri D'Elia <wavexx@thregr.org>
 ;; Version: 0.1
-;; URL: https://gitlab.com/wavexx/bionic-reading-mode.el
+;; URL: https://gitlab.com/wavexx/stem-reading-mode.el
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, wp
 
@@ -21,86 +21,85 @@
 ;;; Commentary:
 
 ;; Highlight word stems in text buffers, thereby providing artificial
-;; fixation points to improve speed reading. Inspired by a website of
-;; the same name.
+;; fixation points to improve speed reading.
 ;;
-;; Use M-x bionic-reading-mode in a text buffer to turn on (or off) the
-;; minor mode. Customize `bionic-reading-highlight-face' to modify the
-;; default highlight. Set `bionic-reading-overlay' to add the highlight
+;; Use M-x stem-reading-mode in a text buffer to turn on (or off) the
+;; minor mode. Customize `stem-reading-highlight-face' to modify the
+;; default highlight. Set `stem-reading-overlay' to add the highlight
 ;; to all words unconditionally.
 ;;
 ;; With some modes, instead of highlighting the word stem, it might be
 ;; convenient to de-light the remaining part of a word instead. You can
-;; achieve this effect by customizing `bionic-reading-delight-face'.
+;; achieve this effect by customizing `stem-reading-delight-face'.
 ;;
 ;; On Hi-Dpi displays (and a good font), a configuration similar to the
 ;; following can give excellent results:
 ;;
-;; (require 'bionic-reading-mode)
-;; (set-face-attribute 'bionic-reading-highlight-face nil :weight 'unspecified)
-;; (set-face-attribute 'bionic-reading-delight-face nil :weight 'light)
+;; (require 'stem-reading-mode)
+;; (set-face-attribute 'stem-reading-highlight-face nil :weight 'unspecified)
+;; (set-face-attribute 'stem-reading-delight-face nil :weight 'light)
 
 ;;; Code:
 
 ;; Customizable parameters
-(defgroup bionic-reading nil
-  "Bionic Reading: a speed reading minor mode."
+(defgroup stem-reading nil
+  "Minor mode highlighting word stems for speed-reading."
   :group 'text)
 
-(defface bionic-reading-highlight-face
+(defface stem-reading-highlight-face
   '((t :weight bold))
   "Face used for highlighting word stems."
-  :group 'bionic-reading)
+  :group 'stem-reading)
 
-(defface bionic-reading-delight-face
+(defface stem-reading-delight-face
   '((t))
   "Face used for delighting the regular (non-stemmed) part of a word."
-  :group 'bionic-reading)
+  :group 'stem-reading)
 
-(defcustom bionic-reading-overlay nil
+(defcustom stem-reading-overlay nil
   "Control the aggressiveness of the stem highlight.
 When nil (default), only highlight words which are not already
 highlighted by other modes. When t, highlight all words irregardless.
 Requires a mode toggle to take effect."
   :type 'boolean
-  :group 'bionic-reading)
+  :group 'stem-reading)
 
-(defvar bionic-reading--overlay-state nil
+(defvar stem-reading--overlay-state nil
   "Overlay state since the last mode activation.")
 
 
 ;; Helper functions
-(defun bionic-reading--keywords ()
+(defun stem-reading--keywords ()
   "Compute font-lock keywords for word stems."
-  (let ((overlay (if bionic-reading--overlay-state 'append)))
+  (let ((overlay (if stem-reading--overlay-state 'append)))
     (let ((keywords `(("\\<\\(\\w\\)\\(\\w\\{,2\\}\\)"
-		       (1 'bionic-reading-highlight-face ,overlay)
-		       (2 'bionic-reading-delight-face ,overlay)))))
+		       (1 'stem-reading-highlight-face ,overlay)
+		       (2 'stem-reading-delight-face ,overlay)))))
       (dotimes (c 16)
 	(let ((n (+ 2 c)))
 	  (push (list
 		 (format
 		  "\\<\\(\\w\\{%d\\}\\)\\(\\w\\{%d,\\}\\)"
 		  n (ceiling (* n 0.6)))
-		 `(1 'bionic-reading-highlight-face ,overlay)
-		 `(2 'bionic-reading-delight-face ,overlay))
+		 `(1 'stem-reading-highlight-face ,overlay)
+		 `(2 'stem-reading-delight-face ,overlay))
 		keywords)))
       keywords)))
 
 
 ;;;###autoload
-(define-minor-mode bionic-reading-mode
+(define-minor-mode stem-reading-mode
   "Highlight word stems for speed-reading."
-  :lighter " BR"
+  :lighter " SR"
   (cond
-   (bionic-reading-mode
-    (setq bionic-reading--overlay-state bionic-reading-overlay)
-    (font-lock-add-keywords nil (bionic-reading--keywords) 'append))
+   (stem-reading-mode
+    (setq stem-reading--overlay-state stem-reading-overlay)
+    (font-lock-add-keywords nil (stem-reading--keywords) 'append))
    (t
-    (font-lock-remove-keywords nil (bionic-reading--keywords))))
+    (font-lock-remove-keywords nil (stem-reading--keywords))))
   (font-lock-flush))
 
 
-(provide 'bionic-reading-mode)
+(provide 'stem-reading-mode)
 
-;;; bionic-reading-mode.el ends here
+;;; stem-reading-mode.el ends here
