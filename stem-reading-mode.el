@@ -57,11 +57,20 @@
   :group 'stem-reading)
 
 (defcustom stem-reading-overlay nil
-  "Control the aggressiveness of the stem highlight.
+  "Control the priority of the stem highlight.
 When nil (default), only highlight words which are not already
-highlighted by other modes. When t, highlight all words irregardless.
+highlighted by other modes.
+
+When t or 'prepend, prepend the highlight face to all words so that it
+has higher priority than other modes.
+
+When 'append, append the highlight instead.
+
 Requires a mode toggle to take effect."
-  :type 'boolean
+  :type '(choice (const :tag "Low priority" nil)
+		 (const :tag "High priority" t)
+		 (const :tag "High priority" prepend)
+		 (const :tag "Medium priority" append))
   :group 'stem-reading)
 
 (defvar stem-reading--overlay-state nil
@@ -71,18 +80,18 @@ Requires a mode toggle to take effect."
 ;; Helper functions
 (defun stem-reading--keywords ()
   "Compute font-lock keywords for word stems."
-  (let ((overlay (if stem-reading--overlay-state 'append)))
+  (let ((priority stem-reading--overlay-state))
     (let ((keywords `(("\\<\\(\\w\\)\\(\\w\\{,2\\}\\)"
-		       (1 'stem-reading-highlight-face ,overlay)
-		       (2 'stem-reading-delight-face ,overlay)))))
+		       (1 'stem-reading-highlight-face ,priority)
+		       (2 'stem-reading-delight-face ,priority)))))
       (dotimes (c 16)
 	(let ((n (+ 2 c)))
 	  (push (list
 		 (format
 		  "\\<\\(\\w\\{%d\\}\\)\\(\\w\\{%d,\\}\\)"
 		  n (ceiling (* n 0.6)))
-		 `(1 'stem-reading-highlight-face ,overlay)
-		 `(2 'stem-reading-delight-face ,overlay))
+		 `(1 'stem-reading-highlight-face ,priority)
+		 `(2 'stem-reading-delight-face ,priority))
 		keywords)))
       keywords)))
 
@@ -93,7 +102,9 @@ Requires a mode toggle to take effect."
   :lighter " SR"
   (cond
    (stem-reading-mode
-    (setq stem-reading--overlay-state stem-reading-overlay)
+    (setq stem-reading--overlay-state
+	  (if (eq stem-reading-overlay t) 'prepend
+	    stem-reading-overlay))
     (font-lock-add-keywords nil (stem-reading--keywords) 'append))
    (t
     (font-lock-remove-keywords nil (stem-reading--keywords))))
