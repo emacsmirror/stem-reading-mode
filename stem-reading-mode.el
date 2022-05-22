@@ -67,10 +67,10 @@ has higher priority than other modes.
 When 'append, append the highlight instead.
 
 Requires a mode toggle to take effect."
-  :type '(choice (const :tag "Low priority" nil)
-		 (const :tag "High priority" t)
-		 (const :tag "High priority" prepend)
-		 (const :tag "Medium priority" append))
+  :type '(choice (const t)
+		 (const prepend)
+		 (const append)
+		 (const nil))
   :group 'stem-reading)
 
 (defvar stem-reading--overlay-state nil
